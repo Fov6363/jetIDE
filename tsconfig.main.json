@@ -12,7 +12,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
-    "outDir": "dist/main",
+    "outDir": "dist",
+    "rootDir": "src",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -22,4 +23,4 @@
   },
   "include": ["src/main", "src/shared"],
   "exclude": ["node_modules", "dist", "src/renderer"]
-} 
+}

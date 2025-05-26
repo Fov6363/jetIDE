@@ -1,5 +1,5 @@
-import { app, BrowserWindow } from "electron";
-import * as path from "path";
+import { app, BrowserWindow } from 'electron'
+import * as path from 'path'
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -8,28 +8,27 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true,
     },
-  });
+  })
 
-  if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL("http://localhost:5173");
-    mainWindow.webContents.openDevTools();
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.loadURL('http://localhost:5173')
+    mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
-};
+}
 
-app.whenReady().then(createWindow);
+app.whenReady().then(createWindow)
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
   }
-});
+})
 
-app.on("activate", () => {
+app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createWindow()
   }
-});
+})

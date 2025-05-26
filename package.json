@@ -5,9 +5,10 @@
   "main": "dist/main/index.js",
   "homepage": "./",
   "scripts": {
-    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:main": "tsc -p tsconfig.main.json --watch",
     "dev:vite": "vite",
-    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "dev:electron": "wait-on dist/main/index.js && NODE_ENV=development electron .",
+    "dev": "concurrently \"npm run dev:main\" \"npm run dev:vite\" \"npm run dev:electron\"",
     "dev:debug": "concurrently \"npm run dev:vite\" \"npm run debug:electron\"",
     "debug:electron": "wait-on http://localhost:5173 && electron . --inspect=9229",
     "debug:main": "electron . --inspect-brk=9229",
@@ -81,4 +82,4 @@
       "target": "AppImage"
     }
   }
-} 
+}
