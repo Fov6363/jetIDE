@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Menu, dialog, ipcMain } from 'electron'
 import { join } from 'path'
 import { readdir, stat, readFile, writeFile } from 'fs/promises'
+import { FileSystemItem } from '../shared/types'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -107,8 +108,8 @@ function createMenu(): void {
 ipcMain.handle('read-directory', async (_, dirPath: string) => {
   try {
     const items = await readdir(dirPath)
-    const result = []
-    
+    const result: FileSystemItem[] = []
+
     for (const item of items) {
       const fullPath = join(dirPath, item)
       const stats = await stat(fullPath)
@@ -120,7 +121,7 @@ ipcMain.handle('read-directory', async (_, dirPath: string) => {
         modified: stats.mtime,
       })
     }
-    
+
     return result
   } catch (error) {
     throw new Error(`Failed to read directory: ${error}`)
@@ -161,4 +162,4 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-}) 
+})

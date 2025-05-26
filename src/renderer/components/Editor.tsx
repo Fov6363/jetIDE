@@ -1,104 +1,93 @@
-import React, { useEffect, useRef } from "react";
-import * as monaco from "monaco-editor";
-import { useStore } from "../store/useStore";
+import React, { useRef, useEffect } from 'react'
+import { Editor as MonacoEditor } from '@monaco-editor/react'
+import { useAppStore } from '../store/appStore'
 
 const Editor: React.FC = () => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const monacoRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const { selectedFile, fileContent, setFileContent } = useStore();
+  const { tabs, activeTabId, updateTabContent, theme, settings } = useAppStore()
+  const editorRef = useRef<any>(null)
+
+  const activeTab = tabs.find(tab => tab.id === activeTabId)
 
   useEffect(() => {
-    if (editorRef.current && !monacoRef.current) {
-      monacoRef.current = monaco.editor.create(editorRef.current, {
-        value: "",
-        language: "typescript",
-        theme: "vs-dark",
-        fontSize: 14,
-        wordWrap: "on",
-        automaticLayout: true,
-      });
-
-      monacoRef.current.onDidChangeModelContent(() => {
-        if (monacoRef.current && selectedFile) {
-          const content = monacoRef.current.getValue();
-          setFileContent(selectedFile, content);
-        }
-      });
+    if (editorRef.current) {
+      // 配置编辑器选项
+      editorRef.current.updateOptions({
+        fontSize: settings.fontSize,
+        fontFamily: settings.fontFamily,
+        tabSize: settings.tabSize,
+        insertSpaces: settings.insertSpaces,
+        wordWrap: settings.wordWrap ? 'on' : 'off',
+        minimap: { enabled: settings.minimap },
+      })
     }
+  }, [settings])
 
-    return () => {
-      if (monacoRef.current) {
-        monacoRef.current.dispose();
-        monacoRef.current = null;
+  const handleEditorDidMount = (editor: any) => {
+    editorRef.current = editor
+    
+    // 配置编辑器
+    editor.updateOptions({
+      fontSize: settings.fontSize,
+      fontFamily: settings.fontFamily,
+      tabSize: settings.tabSize,
+      insertSpaces: settings.insertSpaces,
+      wordWrap: settings.wordWrap ? 'on' : 'off',
+      minimap: { enabled: settings.minimap },
+      automaticLayout: true,
+      scrollBeyondLastLine: false,
+      renderWhitespace: 'selection',
+      cursorBlinking: 'smooth',
+      cursorSmoothCaretAnimation: true,
+    })
+
+    // 添加快捷键
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      if (activeTab) {
+        useAppStore.getState().saveTab(activeTab.id)
       }
-    };
-  }, []);
+    })
+  }
 
-  useEffect(() => {
-    if (monacoRef.current && selectedFile) {
-      const content = fileContent[selectedFile] || "";
-      monacoRef.current.setValue(content);
-
-      // 根据文件扩展名设置语言
-      const extension = selectedFile.split(".").pop();
-      let language = "typescript";
-      switch (extension) {
-        case "js":
-          language = "javascript";
-          break;
-        case "tsx":
-        case "ts":
-          language = "typescript";
-          break;
-        case "json":
-          language = "json";
-          break;
-        case "md":
-          language = "markdown";
-          break;
-        case "css":
-          language = "css";
-          break;
-        case "html":
-          language = "html";
-          break;
-      }
-      monaco.editor.setModelLanguage(monacoRef.current.getModel()!, language);
+  const handleEditorChange = (value: string | undefined) => {
+    if (activeTab && value !== undefined) {
+      updateTabContent(activeTab.id, value)
     }
-  }, [selectedFile, fileContent]);
+  }
 
-  if (!selectedFile) {
+  if (!activeTab) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100%",
-          color: "#666",
-          fontSize: "18px",
-        }}
-      >
-        请选择一个文件来编辑
+      <div className="flex items-center justify-center h-full bg-white dark:bg-gray-900">
+        <div className="text-center text-gray-500 dark:text-gray-400">
+          <div className="text-4xl mb-2">📝</div>
+          <p>选择一个文件开始编辑</p>
+        </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div style={{ height: "100%" }}>
-      <div
-        style={{
-          padding: "8px 16px",
-          borderBottom: "1px solid #ccc",
-          backgroundColor: "#f5f5f5",
-          fontSize: "14px",
+    <div className="h-full">
+      <MonacoEditor
+        height="100%"
+        language={activeTab.language}
+        value={activeTab.content}
+        theme={theme === 'dark' ? 'vs-dark' : 'light'}
+        onChange={handleEditorChange}
+        onMount={handleEditorDidMount}
+        options={{
+          selectOnLineNumbers: true,
+          roundedSelection: false,
+          readOnly: false,
+          cursorStyle: 'line',
+          automaticLayout: true,
+          scrollBeyondLastLine: false,
+          renderWhitespace: 'selection',
+          cursorBlinking: 'smooth',
+          cursorSmoothCaretAnimation: true,
         }}
-      >
-        {selectedFile}
-      </div>
-      <div ref={editorRef} style={{ height: "calc(100% - 40px)" }} />
+      />
     </div>
-  );
-};
+  )
+}
 
-export default Editor;
+export default Editor 

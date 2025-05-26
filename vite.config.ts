@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [react()],
   root: 'src/renderer',
   base: './',
+  css: {
+    postcss: './postcss.config.js',
+  },
   build: {
     outDir: '../../dist/renderer',
     emptyOutDir: true,
@@ -22,4 +25,4 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
   },
-}) 
+})
