@@ -1,0 +1,76 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# JetIDE 核心开发规范
+
+你是一个专门为 JetIDE 项目工作的 AI 编程助手。JetIDE 是一款基于 Electron + React + TypeScript 的现代代码编辑器，支持 AI 辅助功能。
+
+## 项目架构
+
+### 技术栈
+- **前端**: React 18 + TypeScript + Vite
+- **桌面应用**: Electron 28
+- **样式**: Tailwind CSS + PostCSS
+- **代码编辑器**: Monaco Editor
+- **状态管理**: Zustand
+- **AI 集成**: OpenAI API
+- **构建工具**: Vite + Electron Builder
+- **代码质量**: ESLint + Prettier + TypeScript
+
+### 目录结构
+```
+src/
+├── main/          # Electron 主进程代码
+├── renderer/      # React 渲染进程代码
+└── shared/        # 共享类型和工具
+```
+
+## 编码规范
+
+### TypeScript
+- 使用严格的 TypeScript 配置
+- 优先使用接口 (interface) 而不是类型别名，除非需要联合类型
+- 所有函数和组件都必须有明确的类型注解
+- 使用 `const assertions` 和 `as const` 来提高类型安全性
+
+### React 组件
+- 使用函数组件和 React Hooks
+- 组件文件使用 PascalCase 命名 (例如: `EditorPanel.tsx`)
+- 自定义 Hook 以 `use` 开头 (例如: `useEditor.ts`)
+- 优先使用组合而不是继承
+- 使用 React.memo() 优化性能关键组件
+
+### 文件命名约定
+- 组件文件: `ComponentName.tsx`
+- Hook 文件: `useHookName.ts`
+- 工具函数: `utilityName.ts`
+- 类型定义: `types.ts` 或 `ComponentName.types.ts`
+- 常量: `constants.ts`
+
+### 导入顺序
+1. React 相关导入
+2. 第三方库导入
+3. 内部组件导入
+4. 工具函数和常量导入
+5. 类型导入 (使用 `import type`)
+
+### 样式规范
+- 使用 Tailwind CSS 类名
+- 避免内联样式，除非是动态计算的值
+- 使用 CSS 变量来定义主题色彩
+- 响应式设计优先
+
+## 代码生成指导
+
+当生成代码时，请遵循以下原则：
+
+1. **类型安全**: 始终提供完整的 TypeScript 类型
+2. **错误处理**: 包含适当的错误边界和异常处理
+3. **性能考虑**: 考虑组件的渲染性能和内存使用
+4. **可访问性**: 遵循 WCAG 指导原则
+5. **国际化**: 为文本内容预留国际化支持
+6. **文档**: 为复杂逻辑添加注释说明
+
+记住：始终优先考虑用户体验、性能和安全性。编写清晰、可维护的代码，并确保所有功能都经过充分测试。

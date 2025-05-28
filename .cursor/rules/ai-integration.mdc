@@ -1,0 +1,143 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# AI 集成开发指导
+
+## OpenAI API 使用规范
+
+### 错误处理和重试机制
+
+```typescript
+interface AIServiceConfig {
+  apiKey: string;
+  maxRetries: number;
+  timeout: number;
+}
+
+class AIService {
+  private async callWithRetry<T>(
+    fn: () => Promise<T>,
+    retries: number = 3
+  ): Promise<T> {
+    try {
+      return await fn();
+    } catch (error) {
+      if (retries > 0 && this.isRetryableError(error)) {
+        await this.delay(1000);
+        return this.callWithRetry(fn, retries - 1);
+      }
+      throw error;
+    }
+  }
+}
+```
+
+### 安全性最佳实践
+- 保护 API 密钥安全，不要硬编码
+- 实现请求限流和重试机制
+- 提供离线模式降级方案
+- 验证和清理用户输入
+
+### 性能优化
+- 实现请求缓存机制
+- 使用流式响应处理长文本
+- 实现请求取消功能
+- 优化 prompt 长度
+
+## Monaco Editor 集成
+
+### 基础配置
+
+```typescript
+import { Editor } from '@monaco-editor/react';
+
+const MonacoEditor: React.FC<EditorProps> = ({ 
+  value, 
+  onChange, 
+  language = 'typescript' 
+}) => {
+  const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
+    // 编辑器初始化配置
+    editor.updateOptions({
+      fontSize: 14,
+      fontFamily: 'JetBrains Mono, Consolas, monospace',
+      lineNumbers: 'on',
+      minimap: { enabled: true },
+      wordWrap: 'on'
+    });
+  };
+
+  return (
+    <Editor
+      height="100%"
+      language={language}
+      value={value}
+      onChange={onChange}
+      onMount={handleEditorDidMount}
+      theme="vs-dark"
+      options={{
+        selectOnLineNumbers: true,
+        automaticLayout: true
+      }}
+    />
+  );
+};
+```
+
+### AI 代码建议集成
+
+```typescript
+// 注册自定义代码补全提供者
+monaco.languages.registerCompletionItemProvider('typescript', {
+  provideCompletionItems: async (model, position) => {
+    const suggestions = await getAISuggestions(
+      model.getValue(),
+      position
+    );
+    
+    return {
+      suggestions: suggestions.map(suggestion => ({
+        label: suggestion.label,
+        kind: monaco.languages.CompletionItemKind.Function,
+        insertText: suggestion.code,
+        documentation: suggestion.description
+      }))
+    };
+  }
+});
+```
+
+### 自定义主题和语言支持
+
+```typescript
+// 定义自定义主题
+monaco.editor.defineTheme('jetide-dark', {
+  base: 'vs-dark',
+  inherit: true,
+  rules: [
+    { token: 'comment', foreground: '6A9955' },
+    { token: 'keyword', foreground: '569CD6' },
+    { token: 'string', foreground: 'CE9178' }
+  ],
+  colors: {
+    'editor.background': '#1E1E1E',
+    'editor.foreground': '#D4D4D4'
+  }
+});
+```
+
+## 测试策略
+
+### AI 功能测试
+- 模拟 API 响应进行单元测试
+- 测试错误处理和重试逻辑
+- 验证安全性和输入清理
+- 性能测试和负载测试
+
+### Monaco Editor 测试
+- 测试编辑器初始化和配置
+- 验证代码补全功能
+- 测试主题和语言支持
+- 集成测试用户交互

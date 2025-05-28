@@ -1,0 +1,93 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# React 组件开发规范
+
+## 组件结构模板
+
+### 标准组件模板
+
+```typescript
+import React, { memo, useCallback, useMemo } from 'react';
+import type { ComponentProps } from './ComponentName.types';
+
+interface ComponentNameProps {
+  // Props 定义
+}
+
+const ComponentName: React.FC<ComponentNameProps> = memo(({ 
+  // 解构 props
+}) => {
+  // Hooks
+  
+  // 计算属性
+  const computedValue = useMemo(() => {
+    // 计算逻辑
+  }, [dependencies]);
+  
+  // 事件处理
+  const handleEvent = useCallback(() => {
+    // 事件处理逻辑
+  }, [dependencies]);
+  
+  return (
+    <div className="component-container">
+      {/* JSX 内容 */}
+    </div>
+  );
+});
+
+ComponentName.displayName = 'ComponentName';
+
+export default ComponentName;
+```
+
+## 性能优化
+
+### React 性能最佳实践
+- 使用 `React.memo()` 包装纯组件
+- 使用 `useMemo()` 和 `useCallback()` 优化昂贵计算
+- 实现虚拟滚动处理大量数据
+- 懒加载非关键组件
+
+### 状态管理 (Zustand)
+
+```typescript
+interface EditorStore {
+  content: string;
+  setContent: (content: string) => void;
+}
+
+const useEditorStore = create<EditorStore>((set) => ({
+  content: '',
+  setContent: (content) => set({ content }),
+}));
+```
+
+## 样式规范
+
+### Tailwind CSS 使用
+- 优先使用 Tailwind CSS 类名
+- 避免内联样式，除非是动态计算的值
+- 使用 CSS 变量来定义主题色彩
+- 响应式设计优先
+
+### 组件样式组织
+```typescript
+const styles = {
+  container: "flex flex-col h-full bg-background",
+  header: "flex items-center justify-between p-4 border-b",
+  content: "flex-1 overflow-auto p-4",
+  footer: "flex items-center justify-end p-4 border-t"
+};
+```
+
+## 可访问性
+
+### WCAG 指导原则
+- 提供适当的 ARIA 标签
+- 确保键盘导航支持
+- 维护适当的颜色对比度
+- 提供屏幕阅读器支持

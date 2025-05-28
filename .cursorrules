@@ -1,0 +1,165 @@
+# JetIDE - Cursor Rules
+
+你是一个专门为 JetIDE 项目工作的 AI 编程助手。JetIDE 是一款基于 Electron + React + TypeScript 的现代代码编辑器，支持 AI 辅助功能。
+
+## 项目架构
+
+### 技术栈
+- **前端**: React 18 + TypeScript + Vite
+- **桌面应用**: Electron 28
+- **样式**: Tailwind CSS + PostCSS
+- **代码编辑器**: Monaco Editor
+- **状态管理**: Zustand
+- **AI 集成**: OpenAI API
+- **构建工具**: Vite + Electron Builder
+- **代码质量**: ESLint + Prettier + TypeScript
+
+### 目录结构
+```
+src/
+├── main/          # Electron 主进程代码
+├── renderer/      # React 渲染进程代码
+└── shared/        # 共享类型和工具
+```
+
+## 编码规范
+
+### TypeScript
+- 使用严格的 TypeScript 配置
+- 优先使用接口 (interface) 而不是类型别名，除非需要联合类型
+- 所有函数和组件都必须有明确的类型注解
+- 使用 `const assertions` 和 `as const` 来提高类型安全性
+
+### React 组件
+- 使用函数组件和 React Hooks
+- 组件文件使用 PascalCase 命名 (例如: `EditorPanel.tsx`)
+- 自定义 Hook 以 `use` 开头 (例如: `useEditor.ts`)
+- 优先使用组合而不是继承
+- 使用 React.memo() 优化性能关键组件
+
+### 文件命名约定
+- 组件文件: `ComponentName.tsx`
+- Hook 文件: `useHookName.ts`
+- 工具函数: `utilityName.ts`
+- 类型定义: `types.ts` 或 `ComponentName.types.ts`
+- 常量: `constants.ts`
+
+### 导入顺序
+1. React 相关导入
+2. 第三方库导入
+3. 内部组件导入
+4. 工具函数和常量导入
+5. 类型导入 (使用 `import type`)
+
+### 样式规范
+- 使用 Tailwind CSS 类名
+- 避免内联样式，除非是动态计算的值
+- 使用 CSS 变量来定义主题色彩
+- 响应式设计优先
+
+## Electron 特定规范
+
+### 主进程 (Main Process)
+- 所有主进程代码放在 `src/main/` 目录
+- 使用 IPC 进行进程间通信
+- 确保安全性：禁用 node integration，启用 context isolation
+
+### 渲染进程 (Renderer Process)
+- 所有渲染进程代码放在 `src/renderer/` 目录
+- 通过 preload 脚本安全地访问 Electron API
+- 使用 React 进行 UI 开发
+
+### IPC 通信
+- 定义清晰的 IPC 通道名称
+- 使用 TypeScript 接口定义 IPC 消息结构
+- 在 `src/shared/` 中定义共享的类型和常量
+
+## AI 集成指导
+
+### OpenAI API 使用
+- 所有 AI 相关功能都应该有错误处理
+- 实现请求限流和重试机制
+- 保护 API 密钥安全
+- 提供离线模式降级方案
+
+### Monaco Editor 集成
+- 使用 `@monaco-editor/react` 包装器
+- 自定义语言支持和主题
+- 实现代码补全和语法高亮
+- 集成 AI 代码建议功能
+
+## 性能优化
+
+### React 性能
+- 使用 `React.memo()` 包装纯组件
+- 使用 `useMemo()` 和 `useCallback()` 优化昂贵计算
+- 实现虚拟滚动处理大量数据
+- 懒加载非关键组件
+
+### Electron 性能
+- 最小化主进程和渲染进程间的通信
+- 使用 Web Workers 处理 CPU 密集型任务
+- 优化应用启动时间
+- 实现增量更新机制
+
+## 安全最佳实践
+
+- 启用 Context Isolation
+- 禁用 Node Integration
+- 使用 Preload 脚本安全地暴露 API
+- 验证所有用户输入
+- 安全地处理文件操作
+
+## 测试策略
+
+- 为核心功能编写单元测试
+- 使用 Jest 进行测试
+- 模拟 Electron API 进行测试
+- 实现端到端测试覆盖关键用户流程
+
+## 代码生成指导
+
+当生成代码时，请遵循以下原则：
+
+1. **类型安全**: 始终提供完整的 TypeScript 类型
+2. **错误处理**: 包含适当的错误边界和异常处理
+3. **性能考虑**: 考虑组件的渲染性能和内存使用
+4. **可访问性**: 遵循 WCAG 指导原则
+5. **国际化**: 为文本内容预留国际化支持
+6. **文档**: 为复杂逻辑添加注释说明
+
+## 常用模式
+
+### 状态管理 (Zustand)
+```typescript
+interface EditorStore {
+  content: string;
+  setContent: (content: string) => void;
+}
+
+const useEditorStore = create<EditorStore>((set) => ({
+  content: '',
+  setContent: (content) => set({ content }),
+}));
+```
+
+### IPC 通信模式
+```typescript
+// 在 shared/types.ts 中定义
+interface IPCMessage {
+  type: string;
+  payload: unknown;
+}
+
+// 在主进程中
+ipcMain.handle('editor:save', async (event, content: string) => {
+  // 保存逻辑
+});
+
+// 在渲染进程中
+const saveContent = async (content: string) => {
+  await window.electronAPI.invoke('editor:save', content);
+};
+```
+
+记住：始终优先考虑用户体验、性能和安全性。编写清晰、可维护的代码，并确保所有功能都经过充分测试。 

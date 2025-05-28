@@ -1,0 +1,190 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 测试策略和质量保证
+
+## 测试框架配置
+
+### Jest 配置示例
+
+```typescript
+// jest.config.js
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
+  moduleNameMapping: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/renderer/(.*)$': '<rootDir>/src/renderer/$1',
+    '^@/main/(.*)$': '<rootDir>/src/main/$1',
+    '^@/shared/(.*)$': '<rootDir>/src/shared/$1'
+  },
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/test/**/*'
+  ]
+};
+```
+
+## 单元测试最佳实践
+
+### React 组件测试
+
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ComponentName } from './ComponentName';
+
+describe('ComponentName', () => {
+  it('should render correctly', () => {
+    render(<ComponentName />);
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  it('should handle user interactions', () => {
+    const mockHandler = jest.fn();
+    render(<ComponentName onClick={mockHandler} />);
+    
+    fireEvent.click(screen.getByRole('button'));
+    expect(mockHandler).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+### Hook 测试
+
+```typescript
+import { renderHook, act } from '@testing-library/react';
+import { useCustomHook } from './useCustomHook';
+
+describe('useCustomHook', () => {
+  it('should initialize with default values', () => {
+    const { result } = renderHook(() => useCustomHook());
+    expect(result.current.value).toBe(defaultValue);
+  });
+
+  it('should update value correctly', () => {
+    const { result } = renderHook(() => useCustomHook());
+    
+    act(() => {
+      result.current.setValue(newValue);
+    });
+    
+    expect(result.current.value).toBe(newValue);
+  });
+});
+```
+
+## Electron 测试
+
+### 主进程测试
+
+```typescript
+import { ipcMain } from 'electron';
+import { handleEditorSave } from '../main/handlers';
+
+// 模拟 Electron API
+jest.mock('electron', () => ({
+  ipcMain: {
+    handle: jest.fn(),
+    removeHandler: jest.fn()
+  }
+}));
+
+describe('Main Process Handlers', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should handle editor save correctly', async () => {
+    const mockContent = 'test content';
+    const result = await handleEditorSave(null, mockContent);
+    
+    expect(result).toBeDefined();
+    // 验证保存逻辑
+  });
+});
+```
+
+### IPC 通信测试
+
+```typescript
+describe('IPC Communication', () => {
+  it('should send and receive messages correctly', async () => {
+    const mockInvoke = jest.fn().mockResolvedValue('success');
+    
+    // 模拟 electronAPI
+    (window as any).electronAPI = {
+      invoke: mockInvoke
+    };
+
+    const result = await saveContent('test content');
+    
+    expect(mockInvoke).toHaveBeenCalledWith('editor:save', 'test content');
+    expect(result).toBe('success');
+  });
+});
+```
+
+## 集成测试
+
+### 端到端测试流程
+
+```typescript
+describe('Editor Integration', () => {
+  it('should complete full editing workflow', async () => {
+    // 1. 打开编辑器
+    render(<EditorApp />);
+    
+    // 2. 输入内容
+    const editor = screen.getByRole('textbox');
+    fireEvent.change(editor, { target: { value: 'test code' } });
+    
+    // 3. 保存文件
+    const saveButton = screen.getByText('Save');
+    fireEvent.click(saveButton);
+    
+    // 4. 验证保存成功
+    await waitFor(() => {
+      expect(screen.getByText('Saved successfully')).toBeInTheDocument();
+    });
+  });
+});
+```
+
+## 测试覆盖率要求
+
+### 覆盖率目标
+- 核心业务逻辑: 90%+
+- UI 组件: 80%+
+- 工具函数: 95%+
+- 整体项目: 85%+
+
+### 质量门禁
+- 所有测试必须通过
+- 代码覆盖率达标
+- 无严重的 ESLint 错误
+- TypeScript 类型检查通过
+
+## 性能测试
+
+### 组件性能测试
+
+```typescript
+import { performance } from 'perf_hooks';
+
+describe('Component Performance', () => {
+  it('should render within acceptable time', () => {
+    const start = performance.now();
+    
+    render(<LargeComponent data={largeDataSet} />);
+    
+    const end = performance.now();
+    const renderTime = end - start;
+    
+    expect(renderTime).toBeLessThan(100); // 100ms
+  });
+});
+```
