@@ -21,15 +21,15 @@ function App() {
   useEffect(() => {
     // 监听 Electron 事件
     if (window.electronAPI) {
-      window.electronAPI.onFolderOpened((folderPath: string) => {
+      window.electronAPI.events.onFolderOpened((folderPath: string) => {
         useAppStore.getState().openProject(folderPath)
       })
 
-      window.electronAPI.onNewFile(() => {
+      window.electronAPI.events.onNewFile(() => {
         useAppStore.getState().createNewTab()
       })
 
-      window.electronAPI.onSaveFile(() => {
+      window.electronAPI.events.onSaveFile(() => {
         const activeTab = tabs.find(tab => tab.id === activeTabId)
         if (activeTab) {
           useAppStore.getState().saveTab(activeTab.id)
@@ -39,9 +39,9 @@ function App() {
 
     return () => {
       if (window.electronAPI) {
-        window.electronAPI.removeAllListeners('folder-opened')
-        window.electronAPI.removeAllListeners('new-file')
-        window.electronAPI.removeAllListeners('save-file')
+        window.electronAPI.events.removeAllListeners('folder-opened')
+        window.electronAPI.events.removeAllListeners('new-file')
+        window.electronAPI.events.removeAllListeners('save-file')
       }
     }
   }, [tabs, activeTabId])
@@ -53,7 +53,7 @@ function App() {
   return (
     <div className="flex h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* 侧边栏 */}
-      <div 
+      <div
         className="flex-shrink-0 border-r border-gray-200 dark:border-gray-700"
         style={{ width: sidebarWidth }}
       >
@@ -63,7 +63,7 @@ function App() {
       {/* 调整大小的分隔条 */}
       <div
         className="w-1 bg-gray-200 dark:bg-gray-700 cursor-col-resize hover:bg-primary-500 transition-colors"
-        onMouseDown={(e) => {
+        onMouseDown={e => {
           const startX = e.clientX
           const startWidth = sidebarWidth
 
@@ -100,8 +100,20 @@ function App() {
                   一款轻量、高性能、支持 AI 辅助的现代代码编辑器
                 </p>
                 <div className="space-y-2 text-sm text-gray-500 dark:text-gray-500">
-                  <p>按 <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">Cmd/Ctrl + O</kbd> 打开文件夹</p>
-                  <p>按 <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">Cmd/Ctrl + N</kbd> 新建文件</p>
+                  <p>
+                    按{' '}
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">
+                      Cmd/Ctrl + O
+                    </kbd>{' '}
+                    打开文件夹
+                  </p>
+                  <p>
+                    按{' '}
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">
+                      Cmd/Ctrl + N
+                    </kbd>{' '}
+                    新建文件
+                  </p>
                 </div>
               </div>
             </div>
@@ -115,4 +127,4 @@ function App() {
   )
 }
 
-export default App 
+export default App

@@ -1,38 +1,9 @@
 import React from 'react'
 import { useAppStore } from '../store/appStore'
-import { FileSystemItem } from '../../../shared/types'
+import { FileTree } from './FileTree'
 
 const Sidebar: React.FC = () => {
-  const { currentProject, fileTree, openFileInTab } = useAppStore()
-
-  const handleFileClick = (item: FileSystemItem) => {
-    if (!item.isDirectory) {
-      openFileInTab(item.path)
-    }
-  }
-
-  const getFileIcon = (item: FileSystemItem) => {
-    if (item.isDirectory) {
-      return '📁'
-    }
-    
-    const ext = item.name.split('.').pop()?.toLowerCase()
-    const iconMap: Record<string, string> = {
-      'js': '📄',
-      'jsx': '⚛️',
-      'ts': '📘',
-      'tsx': '⚛️',
-      'py': '🐍',
-      'java': '☕',
-      'html': '🌐',
-      'css': '🎨',
-      'json': '📋',
-      'md': '📝',
-      'txt': '📄',
-    }
-    
-    return iconMap[ext || ''] || '📄'
-  }
+  const { currentProject } = useAppStore()
 
   return (
     <div className="h-full bg-gray-50 dark:bg-gray-800 flex flex-col">
@@ -49,43 +20,17 @@ const Sidebar: React.FC = () => {
       </div>
 
       {/* 文件树 */}
-      <div className="flex-1 overflow-auto">
-        {currentProject ? (
-          <div className="p-2">
-            {fileTree.length > 0 ? (
-              <ul className="space-y-1">
-                {fileTree.map((item) => (
-                  <li key={item.path}>
-                    <button
-                      className="w-full text-left px-2 py-1 rounded text-sm hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center space-x-2"
-                      onClick={() => handleFileClick(item)}
-                    >
-                      <span>{getFileIcon(item)}</span>
-                      <span className="truncate">{item.name}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-center text-gray-500 dark:text-gray-400 mt-8">
-                <p className="text-sm">文件夹为空</p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              <div className="text-4xl mb-2">📁</div>
-              <p className="text-sm">未打开项目</p>
-              <p className="text-xs mt-1">
-                使用 Cmd/Ctrl + O 打开文件夹
-              </p>
-            </div>
-          </div>
-        )}
+      <div className="flex-1">
+        <FileTree
+          rootPath={currentProject?.path}
+          onFileSelect={filePath => {
+            // 文件选择回调，可以在这里添加额外的逻辑
+            console.log('文件已选择:', filePath)
+          }}
+        />
       </div>
     </div>
   )
 }
 
-export default Sidebar 
+export default Sidebar

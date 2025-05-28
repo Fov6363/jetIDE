@@ -2,27 +2,37 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 
-export default defineConfig({
-  plugins: [react()],
-  root: 'src/renderer',
-  base: './',
-  css: {
-    postcss: './postcss.config.js',
-  },
-  build: {
-    outDir: '../../dist/renderer',
-    emptyOutDir: true,
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-      '@/renderer': resolve(__dirname, 'src/renderer'),
-      '@/main': resolve(__dirname, 'src/main'),
-      '@/shared': resolve(__dirname, 'src/shared'),
+export default defineConfig(({ command, mode }) => {
+  const isProduction = mode === 'production'
+
+  return {
+    plugins: [react()],
+    root: 'src/renderer',
+    base: './',
+    css: {
+      postcss: './postcss.config.js',
     },
-  },
-  server: {
-    port: 5173,
-    strictPort: true,
-  },
+    build: {
+      outDir: '../../dist/renderer',
+      emptyOutDir: true,
+      rollupOptions: {
+        external: ['electron'],
+      },
+    },
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src'),
+        '@/renderer': resolve(__dirname, 'src/renderer'),
+        '@/main': resolve(__dirname, 'src/main'),
+        '@/shared': resolve(__dirname, 'src/shared'),
+      },
+    },
+    server: {
+      port: 5173,
+      strictPort: true,
+    },
+    define: {
+      __IS_DEV__: !isProduction,
+    },
+  }
 })
